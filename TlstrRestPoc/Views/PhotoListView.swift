@@ -10,6 +10,14 @@ import UIKit
 
 class PhotoListView: UIView {
     var photoListTableView: UITableView!
+    var factsViewModel: FactsViewModel! {
+        didSet {
+            print(factsViewModel)
+            self.photoListTableView.reloadData()
+        }
+    }
+    
+    
     let cellId = "CellId"
     init() {
         super.init(frame: CGRect.zero)

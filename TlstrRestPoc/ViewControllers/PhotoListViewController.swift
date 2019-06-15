@@ -16,15 +16,10 @@ class PhotoListViewController: UIViewController {
 
         // Do any additional setup after loading the view.
         setupUI()
+        fetchAndFeedContentsToPhotoListView()
     }
     
     func setupUI() {
-        //TODO: Make title dynamic as per json
-        self.title = "Screen title"
-//        if #available(iOS 11, *) {
-//            self.navigationController?.navigationBar.prefersLargeTitles = true
-//        }
-        
         photoListView = PhotoListView()
         photoListView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(photoListView)
@@ -34,5 +29,25 @@ class PhotoListViewController: UIViewController {
         photoListView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
         photoListView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
     }
-
+    
+    func fetchAndFeedContentsToPhotoListView() {
+        NetworkManager().fetch(resource: Facts.factsUrl) { [weak self] response in
+            switch response {
+                case .failure(let error):
+                    self?.showRequestFailureAlert(error)
+                case .success(let facts):
+                    self?.title = facts.title
+                    self?.photoListView.factsViewModel = FactsViewModel(facts)
+            }
+        }
+    }
+    
+    func showRequestFailureAlert(_ error: Error) {
+        print(error.localizedDescription)
+        let alert = UIAlertController(title: nil, message: "There is some problem in fetching lists.", preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alert.addAction(action)
+        
+        self.present(alert, animated: true, completion: nil)
+    }
 }
