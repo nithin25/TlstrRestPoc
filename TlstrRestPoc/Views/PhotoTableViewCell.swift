@@ -21,7 +21,7 @@ class PhotoTableViewCell: UITableViewCell {
         self.selectionStyle = UITableViewCell.SelectionStyle.none
         setupUI()
     }
-    
+    // This attribute hides `init(coder:)` from subclasses
     @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -33,7 +33,9 @@ class PhotoTableViewCell: UITableViewCell {
         // Configure the view for the selected state
     }
 
-    
+    /**
+     Setup UI for this view by setting proper constraints.
+     */
     func setupUI() {
         photoImageView = UIImageView()
         photoImageView.contentMode = .scaleAspectFit
@@ -72,6 +74,11 @@ class PhotoTableViewCell: UITableViewCell {
         descriptionLabel.bottomAnchor.constraint(equalTo: marginGuide.bottomAnchor).isActive = true
     }
     
+    /**
+     Configure the cell by setting the dynamic contents fetched.
+     
+     - Parameter viewModel: **ViewModel** object which contains all reuired contents to dispaly in the cell.
+     */
     func configure(_ viewModel: RowViewModel) {
         titleLable.text = viewModel.title
         descriptionLabel.text = viewModel.description

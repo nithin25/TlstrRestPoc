@@ -30,6 +30,9 @@ class PhotoListView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    /**
+     Setup UI for this view by setting proper constraints.
+     */
     func setupUI() {
         photoListTableView = UITableView()
         photoListTableView.estimatedRowHeight = 200
@@ -44,8 +47,16 @@ class PhotoListView: UIView {
         photoListTableView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
         photoListTableView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
     }
+    
+    /**
+     Reset view model to nil and reload table to not dispay any contents.
+     */
+    func resetFactsList() {
+        factsViewModel = nil
+    }
 }
 
+//MARK: UITableView Datasource methods
 extension PhotoListView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.factsViewModel?.rowVieWModels.count ?? 0
@@ -53,11 +64,10 @@ extension PhotoListView: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! PhotoTableViewCell
-        
         if let viewModel = self.factsViewModel?.rowViewModelAtIndex(indexPath.row) {
             cell.configure(viewModel)
         }
         return cell
-    }    
+    }
 }
 

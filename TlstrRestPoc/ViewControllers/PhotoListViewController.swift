@@ -10,6 +10,7 @@ import UIKit
 
 class PhotoListViewController: UIViewController {
     var photoListView: PhotoListView!
+    private let refreshControl = UIRefreshControl()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,6 +25,10 @@ class PhotoListViewController: UIViewController {
         photoListView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(photoListView)
         
+        photoListView.photoListTableView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(refreshFactsList(_:)), for: .valueChanged)
+        refreshControl.attributedTitle = NSAttributedString(string: "Fetching facts list.....")
+        
         photoListView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
         photoListView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
         photoListView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
@@ -36,6 +41,9 @@ class PhotoListViewController: UIViewController {
                 case .failure(let error):
                     self?.showRequestFailureAlert(error)
                 case .success(let facts):
+                    if let isRefreshing = self?.refreshControl.isRefreshing, isRefreshing == true {
+                        self?.refreshControl.endRefreshing()
+                    }
                     self?.title = facts.title
                     self?.photoListView.factsViewModel = FactsViewModel(facts)
             }
@@ -49,5 +57,12 @@ class PhotoListViewController: UIViewController {
         alert.addAction(action)
         
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    //MARK: Refresh the Table
+    @objc func refreshFactsList(_ sender: Any) {
+        self.title = nil
+        photoListView.resetFactsList()
+        self.fetchAndFeedContentsToPhotoListView()
     }
 }

@@ -36,6 +36,14 @@ extension Resource {
 }
 
 class NetworkManager {
+    /**
+     Fetch Json from the giver url.
+     Parse to the model provided using Codable protocol.
+     return parsed model object or error via completion handler with success or Failure parameters.
+     
+     - Parameter resource: OBject of type **Resource** which hold url and othe request details.
+     - Parameter completion: completion handler which returns Success or Failure of the request.
+     */
     func fetch<T>(resource: Resource<T>, completion:@escaping (Response<T, NetworkError>) -> Void) {
         var request = URLRequest(url: resource.url)
         request.httpMethod = resource.httpMethod.rawValue

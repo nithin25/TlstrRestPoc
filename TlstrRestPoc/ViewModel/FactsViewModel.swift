@@ -14,7 +14,7 @@ class FactsViewModel {
     
     init(_ facts: Facts) {
         self.title = facts.title
-        self.rowVieWModels = facts.rows.map{ RowViewModel(row: $0) }
+        self.rowVieWModels = facts.rows.filter { (($0.title != nil) || ($0.description != nil) || ($0.imageHref != nil)) }.map { RowViewModel(row: $0) }
     }
     
     func rowViewModelAtIndex(_ index: Int) -> RowViewModel {
@@ -28,11 +28,11 @@ struct RowViewModel {
 
 extension RowViewModel {
     var title: String {
-        return self.row.title ?? "Title Unavailable"
+        return self.row.title ?? ""
     }
     
     var description: String {
-        return self.row.description ?? "Description Unavailable"
+        return self.row.description ?? ""
     }
     
     var url: URL? {
