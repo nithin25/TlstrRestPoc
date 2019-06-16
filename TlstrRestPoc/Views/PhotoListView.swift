@@ -10,15 +10,15 @@ import UIKit
 
 class PhotoListView: UIView {
     var photoListTableView: UITableView!
-    var factsViewModel: FactsViewModel! {
+    var factsViewModel: FactsViewModel? {
         didSet {
-            print(factsViewModel)
             self.photoListTableView.reloadData()
         }
     }
     
     
     let cellId = "CellId"
+    
     init() {
         super.init(frame: CGRect.zero)
         setupUI()
@@ -48,22 +48,16 @@ class PhotoListView: UIView {
 
 extension PhotoListView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
+        return self.factsViewModel?.rowVieWModels.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! PhotoTableViewCell
         
-        //TODO: Replace with contents available in Json obtained
-        cell.photoimageView.image = UIImage(named: "Imagexx")
-        cell.titleLable.text = "Title"
-        cell.descriptionLabel.text = "details sdbsjfgjhsdf sdfjsbdfhjgsdjfgsjdfb sjdhgjfgjhsdbf ssdjhfgsjhdgfhjsdf sdhjgsjhdgjshdgfjhsdf sjdhgfsjhdgfjhsdgfjhsgdf jhdfhjfsgdfjsgdf 123"
-        
+        if let viewModel = self.factsViewModel?.rowViewModelAtIndex(indexPath.row) {
+            cell.configure(viewModel)
+        }
         return cell
-        
-    }
-    
-    
+    }    
 }
-
 

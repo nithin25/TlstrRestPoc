@@ -7,15 +7,18 @@
 //
 
 import UIKit
+import Alamofire
+import AlamofireImage
 
 class PhotoTableViewCell: UITableViewCell {
-    var photoimageView: UIImageView!
+    var photoImageView: UIImageView!
     var titleLable: UILabel!
     var descriptionLabel: UILabel!
-    
+    let photoImageViewHeight: CGFloat = 300.0
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        self.selectionStyle = UITableViewCell.SelectionStyle.none
         setupUI()
     }
     
@@ -32,11 +35,11 @@ class PhotoTableViewCell: UITableViewCell {
 
     
     func setupUI() {
-        photoimageView = UIImageView()
-        photoimageView.contentMode = .scaleAspectFit
-        photoimageView.translatesAutoresizingMaskIntoConstraints = false
-        photoimageView.backgroundColor = .gray
-        contentView.addSubview(photoimageView)
+        photoImageView = UIImageView()
+        photoImageView.contentMode = .scaleAspectFit
+        photoImageView.translatesAutoresizingMaskIntoConstraints = false
+        photoImageView.backgroundColor = .gray
+        contentView.addSubview(photoImageView)
         
         titleLable = UILabel()
         titleLable.numberOfLines = 0
@@ -52,20 +55,39 @@ class PhotoTableViewCell: UITableViewCell {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(descriptionLabel)
         
-        let margineGuide = contentView.layoutMarginsGuide
-        photoimageView.leadingAnchor.constraint(equalTo: margineGuide.leadingAnchor).isActive =  true
-        photoimageView.topAnchor.constraint(equalTo: margineGuide.topAnchor).isActive = true
-        photoimageView.trailingAnchor.constraint(equalTo: margineGuide.trailingAnchor).isActive = true
-        photoimageView.heightAnchor.constraint(equalToConstant: 150)
+        let marginGuide = contentView.layoutMarginsGuide
+        photoImageView.leadingAnchor.constraint(equalTo: marginGuide.leadingAnchor).isActive =  true
+        photoImageView.topAnchor.constraint(equalTo: marginGuide.topAnchor).isActive = true
+        photoImageView.trailingAnchor.constraint(equalTo: marginGuide.trailingAnchor).isActive = true
+        photoImageView.heightAnchor.constraint(equalToConstant: photoImageViewHeight)
         
-        titleLable.leadingAnchor.constraint(equalTo: photoimageView.leadingAnchor).isActive = true
-        titleLable.topAnchor.constraint(equalTo: photoimageView.bottomAnchor, constant: 1).isActive = true
-        titleLable.trailingAnchor.constraint(equalTo: photoimageView.trailingAnchor).isActive = true
+        titleLable.leadingAnchor.constraint(equalTo: photoImageView.leadingAnchor).isActive = true
+        titleLable.topAnchor.constraint(equalTo: photoImageView.bottomAnchor, constant: 1).isActive = true
+        titleLable.trailingAnchor.constraint(equalTo: photoImageView.trailingAnchor).isActive = true
         titleLable.heightAnchor.constraint(greaterThanOrEqualToConstant: 15).isActive = true
         
-        descriptionLabel.leadingAnchor.constraint(equalTo: photoimageView.leadingAnchor).isActive = true
+        descriptionLabel.leadingAnchor.constraint(equalTo: photoImageView.leadingAnchor).isActive = true
         descriptionLabel.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: 1).isActive = true
-        descriptionLabel.trailingAnchor.constraint(equalTo:photoimageView.trailingAnchor).isActive = true
-        descriptionLabel.bottomAnchor.constraint(equalTo: margineGuide.bottomAnchor).isActive = true
+        descriptionLabel.trailingAnchor.constraint(equalTo:photoImageView.trailingAnchor).isActive = true
+        descriptionLabel.bottomAnchor.constraint(equalTo: marginGuide.bottomAnchor).isActive = true
+    }
+    
+    func configure(_ viewModel: RowViewModel) {
+        titleLable.text = viewModel.title
+        descriptionLabel.text = viewModel.description
+        //TODO: Setimage
+        let defaultImage = UIImage(named: "unavailable")
+        if let url = viewModel.url {
+            let marginGuideFrame = contentView.layoutMarginsGuide.layoutFrame
+            let size = CGSize(width: marginGuideFrame.width, height: photoImageViewHeight)
+            
+            photoImageView.af_setImage(withURL: url,
+                                       placeholderImage: defaultImage,
+                                       filter: AspectScaledToFitSizeFilter(size: size),
+                                       imageTransition: .crossDissolve(0.5),
+                                       runImageTransitionIfCached: true)
+        } else {
+            photoImageView.image = defaultImage
+        }
     }
 }

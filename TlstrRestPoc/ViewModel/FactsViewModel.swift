@@ -35,4 +35,10 @@ extension RowViewModel {
         return self.row.description ?? "Description Unavailable"
     }
     
+    var url: URL? {
+        if let urlString = self.row.imageHref {
+            return URL(string: urlString)
+        }
+        return nil
+    }
 }

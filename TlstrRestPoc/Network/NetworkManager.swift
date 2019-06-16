@@ -44,25 +44,28 @@ class NetworkManager {
         
         URLSession.shared.dataTask(with: request) { data, response, error in
                 guard let data = data, error == nil else {
-                    completion(.failure(.domainError))
+                    DispatchQueue.main.async {
+                        completion(.failure(.domainError))
+                    }
                     return
                 }
             
                 guard let responseString = String(data: data, encoding: .isoLatin1),
                     let responseData = responseString.data(using: .utf8) else {
-                        completion(.failure(.domainError))
+                        DispatchQueue.main.async {
+                            completion(.failure(.domainError))
+                        }
                         return
                 }
             
                 let result = try? JSONDecoder().decode(T.self, from: responseData)
-                if let result = result {
-                    DispatchQueue.main.async {
+                DispatchQueue.main.async {
+                    if let result = result {
                         completion(.success(result))
+                    } else {
+                        completion(.failure(.decodingError))
                     }
-                } else {
-                    completion(.failure(.decodingError))
                 }
-            
             }.resume()
     }
 }
