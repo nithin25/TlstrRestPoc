@@ -37,6 +37,10 @@ class PhotoListView: UIView {
         photoListTableView = UITableView()
         photoListTableView.estimatedRowHeight = 200
         photoListTableView.rowHeight = UITableView.automaticDimension
+        photoListTableView.separatorStyle = .singleLine
+        photoListTableView.separatorColor = .black
+        photoListTableView.cellLayoutMarginsFollowReadableWidth = false
+        photoListTableView.separatorInset = .zero
         photoListTableView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(photoListTableView)
         photoListTableView.dataSource = self
@@ -64,10 +68,20 @@ extension PhotoListView: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! PhotoTableViewCell
+        cell.delegate = self
         if let viewModel = self.factsViewModel?.rowViewModelAtIndex(indexPath.row) {
             cell.configure(viewModel)
         }
         return cell
+    }
+    
+}
+
+//MARK: PhotoTableViewCell Delegate methods from custom UITableviewcell PhotoTableViewCell
+extension PhotoListView: PhotoTableViewCellDelagate {
+    func refreshCell(_ cell: PhotoTableViewCell) {
+        photoListTableView.beginUpdates()
+        photoListTableView.endUpdates()
     }
 }
 

@@ -10,15 +10,25 @@ import UIKit
 import Alamofire
 import AlamofireImage
 
+protocol PhotoTableViewCellDelagate {
+    /**
+     Refresh the cell using table udates.
+     Use this protocol if asynchrounous updates done in this class and requires reframing the UI.
+     */
+    func refreshCell(_ cell: PhotoTableViewCell)
+}
+
 class PhotoTableViewCell: UITableViewCell {
     var photoImageView: UIImageView!
     var titleLable: UILabel!
     var descriptionLabel: UILabel!
     let photoImageViewHeight: CGFloat = 300.0
+    var delegate: PhotoTableViewCellDelagate?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = UITableViewCell.SelectionStyle.none
+        
         setupUI()
     }
     // This attribute hides `init(coder:)` from subclasses
@@ -40,7 +50,8 @@ class PhotoTableViewCell: UITableViewCell {
         photoImageView = UIImageView()
         photoImageView.contentMode = .scaleAspectFit
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
-        photoImageView.backgroundColor = .gray
+        photoImageView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1)
+        photoImageView.layer.cornerRadius = 5.0
         contentView.addSubview(photoImageView)
         
         titleLable = UILabel()
@@ -57,21 +68,19 @@ class PhotoTableViewCell: UITableViewCell {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(descriptionLabel)
         
-        let marginGuide = contentView.layoutMarginsGuide
-        photoImageView.leadingAnchor.constraint(equalTo: marginGuide.leadingAnchor).isActive =  true
-        photoImageView.topAnchor.constraint(equalTo: marginGuide.topAnchor).isActive = true
-        photoImageView.trailingAnchor.constraint(equalTo: marginGuide.trailingAnchor).isActive = true
-        photoImageView.heightAnchor.constraint(equalToConstant: photoImageViewHeight)
+        photoImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10.0).isActive =  true
+        photoImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8.0).isActive = true
+        photoImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10.0).isActive = true
+        photoImageView.heightAnchor.constraint(lessThanOrEqualToConstant: photoImageViewHeight)
         
         titleLable.leadingAnchor.constraint(equalTo: photoImageView.leadingAnchor).isActive = true
-        titleLable.topAnchor.constraint(equalTo: photoImageView.bottomAnchor, constant: 1).isActive = true
+        titleLable.topAnchor.constraint(equalTo: photoImageView.bottomAnchor, constant: 8.0).isActive = true
         titleLable.trailingAnchor.constraint(equalTo: photoImageView.trailingAnchor).isActive = true
-        titleLable.heightAnchor.constraint(greaterThanOrEqualToConstant: 15).isActive = true
         
         descriptionLabel.leadingAnchor.constraint(equalTo: photoImageView.leadingAnchor).isActive = true
-        descriptionLabel.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: 1).isActive = true
+        descriptionLabel.topAnchor.constraint(equalTo: titleLable.bottomAnchor, constant: 8.0).isActive = true
         descriptionLabel.trailingAnchor.constraint(equalTo:photoImageView.trailingAnchor).isActive = true
-        descriptionLabel.bottomAnchor.constraint(equalTo: marginGuide.bottomAnchor).isActive = true
+        contentView.bottomAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5.0).isActive = true
     }
     
     /**
@@ -82,17 +91,15 @@ class PhotoTableViewCell: UITableViewCell {
     func configure(_ viewModel: RowViewModel) {
         titleLable.text = viewModel.title
         descriptionLabel.text = viewModel.description
-        //TODO: Setimage
         let defaultImage = UIImage(named: "unavailable")
         if let url = viewModel.url {
-            let marginGuideFrame = contentView.layoutMarginsGuide.layoutFrame
-            let size = CGSize(width: marginGuideFrame.width, height: photoImageViewHeight)
-            
             photoImageView.af_setImage(withURL: url,
                                        placeholderImage: defaultImage,
-                                       filter: AspectScaledToFitSizeFilter(size: size),
                                        imageTransition: .crossDissolve(0.5),
-                                       runImageTransitionIfCached: true)
+                                       runImageTransitionIfCached: true) { [weak self] (response) in
+                                        //Resizing cell after image update requires calling Tableview updates method
+                                        self?.delegate?.refreshCell(self!)
+            }
         } else {
             photoImageView.image = defaultImage
         }
